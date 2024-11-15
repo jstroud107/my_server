@@ -22,6 +22,20 @@ async fn serve_index() -> impl IntoResponse {
     }
 }
 
+async fn serve_sleep() -> impl IntoResponse {
+    match fs::read_to_string("sleep.html").await {
+        Ok(contents) => Response::builder()
+            .status(StatusCode::OK)
+            .header("Content-Type", "text/html")
+            .body(boxed(Body::from(contents)))
+            .unwrap(),
+        Err(_) => Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(boxed(Body::from("Internal Server Error")))
+            .unwrap(),
+    }
+}
+
 async fn serve_static(uri: Uri) -> impl IntoResponse {
     // Map the URI path to a file path
     let path = match uri.path() {
@@ -33,6 +47,7 @@ async fn serve_static(uri: Uri) -> impl IntoResponse {
     };
 
     // Read and return the file content
+    // Going to make a 404 page when the client goes to an unknown page
     match fs::read(path).await {
         Ok(contents) => {
             let mime_type = if path.ends_with(".js") {
@@ -59,7 +74,8 @@ async fn main() {
     // Build our application with two routes
     let app = Router::new()
         .route("/", get(serve_index))
-        .route("/script.js", get(serve_static));
+        .route("/script.js", get(serve_static))
+        .route("/sleep.html", get(serve_sleep));
 
     // Define the address to serve on
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
@@ -71,31 +87,3 @@ async fn main() {
         .await
         .unwrap();
 }
-
-/*
-
---Add the routes that I'm going to use on this page
-
-fn handle_connection(mut stream: TcpStream) {
-    let buf_reader = BufReader::new(&mut stream);
-    let request_line = buf_reader.lines().next().unwrap().unwrap();
-
-    let (status_line, filename) = match &request_line[..] {
-        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "index.html"),
-        "GET /sleep.html HTTP/1.1" => {
-            thread::sleep(Duration::from_secs(5));
-            ("HTTP/1.1 200 OK", "sleep.html")
-        }
-        _ => ("HTTP/1.1 404 NOT FOUND", "404.html"),
-    };
-
-    let contents = fs::read_to_string(filename).unwrap();
-    let length = contents.len();
-
-    let response =
-        format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
-
-    stream.write_all(response.as_bytes()).unwrap();
-    } 
-
-    */
