@@ -13,10 +13,10 @@ async fn hello(_: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>
     Ok(Response::new(Full::new(Bytes::from("Hello, World!"))))
 }
 
-async fn connecttoserver(_: Request<hyper::body::Incoming>) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
-    Ok(Response::new(Full::new()
-)
-}
+// async fn connecttoserver(_: Request<hyper::body::Incoming>) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
+//     Ok(Response::new(Full::new()
+// )
+// }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
