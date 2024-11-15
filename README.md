@@ -10,6 +10,7 @@
 * Show if the server has rust installed and what version
 * Show if python is installed and what version
 * Make the 404 page to have the information
+4. Get Javascript working on the site
 4. If you pick a page other than just the main address it will show the 404 page
 5. Find ways to shutdown the server without it crashing if the wrong data is being sent
 4. See how to deploy it on the network so other computers on the same network can see it
